@@ -106,10 +106,9 @@ void controls ()
       case 20: //2player
         stage.setGameState(1);
         arduboy.initRandomSeed();
-        daball.direction = random(4,7);
+        daball.direction = (Direction)random(4,7);
       break;
       case 30: //options
-      Serial.println("display option menu");
       stage.menuselection = 10;
       stage.setGameState(2);
       
@@ -120,7 +119,7 @@ void controls ()
   if(arduboy.justPressed(LEFT_BUTTON) & stage.getGameState() == 1){
         if(paused == 0) {
           paused = 1;
-          sound.tone(pausesfx);
+          sound.tones(pausesfx);
           delay(300);
         sound.noTone();
         } else {
@@ -174,7 +173,6 @@ void controls ()
        tmp+=paddlespeed;
         player2.setPosY(tmp);
       } 
-      Serial.println(player2.getPosY());
   }
   if (arduboy.pressed(A_BUTTON)) {
       int tmp = player2.getPosY();
@@ -185,7 +183,6 @@ void controls ()
          tmp-=paddlespeed;
         player2.setPosY(tmp);
         }
-        Serial.println(player2.getPosY());
   }
   if (arduboy.pressed(UP_BUTTON)) {
       int tmp = player1.getPosY();
@@ -196,7 +193,6 @@ void controls ()
        tmp+=paddlespeed;
         player1.setPosY(tmp);
       } 
-      Serial.println(player1.getPosY());
        
       
   }
@@ -209,7 +205,6 @@ void controls ()
          tmp-=paddlespeed;
         player1.setPosY(tmp);
         }
-        Serial.println(player1.getPosY());
       }
   }
 
@@ -274,8 +269,6 @@ uint8_t updateScore() {
   
   if(daball.x >= 128) {
     stage.scores[0]+=1;
-            Serial.println("p1scored");
-    Serial.println(daball.x);
     daball.resetPos();
  sound.tones(scoresfx);
 

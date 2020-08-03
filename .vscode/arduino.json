@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:leonardo",
+    "sketch": "pong.ino",
+    "port": "/dev/ttyACM0",
+    "programmer": "AVRISP mkII"
+}
