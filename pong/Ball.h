@@ -63,7 +63,7 @@ public:
     float cury = getPosY();
 
     // if the game is being played
-    if (gameState == 1)
+    if (gameState == 1 || gameState == 3)
     {
       switch (direction)
       {

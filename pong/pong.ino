@@ -1,12 +1,28 @@
 #include <Arduboy2.h>
 #include <Sprites.h>
 #include <ArduboyTones.h>
-#include "/home/ronaldmanganaro/Arduboy/ArduboyPong/Player.h"
-#include "/home/ronaldmanganaro/Arduboy/ArduboyPong/Ball.h"
-#include "/home/ronaldmanganaro/Arduboy/ArduboyPong/Stage.h"
+#include "Player.h"
+#include "Ball.h"
+#include "Stage.h"
+// Color array index
+enum class Color {
+  RED,
+  GREEN,
+  BLUE,
+  COUNT
+};
+
+// Map LED color index to LED name
+const byte LEDpin[(byte)(Color::COUNT)] = {
+  RED_LED,
+  GREEN_LED,
+  BLUE_LED
+};
+byte analogSelected = (byte)(Color::RED);
+byte analogValue[3] = { 0, 0, 0};
 
 void detectCollision(Rect ball, Rect player1, Rect player2);
-
+uint8_t priorstate;
 uint8_t paused = 0;
 uint8_t paddlespeed = 2;
 const uint8_t SCREENX = 128;
@@ -45,6 +61,7 @@ const uint16_t menusfx[] PROGMEM = {
 const uint16_t selectsfx[] PROGMEM = {
     700, 100,
     TONES_END};
+
 void setup()
 {
   arduboy.begin();
@@ -63,15 +80,22 @@ void loop()
   {
 
     arduboy.clear();
-
+  if(stage.getGameState() == 3) {
+      
+      if(player2.getPosY() > daball.getPosY()) {
+          player2.y-=paddlespeed;
+        }  else 
+        player2.y+=paddlespeed;
+    }
     player1.updatePos();
     player2.updatePos();
     //had to increase size for faster speeds player1 is is drawn off -4 offscreen so collider can be 12 and not 4
     arduboy.fillRect(player1.getPosX(), player1.getPosY(), 4, 9, WHITE);
     arduboy.fillRect(player2.getPosX(), player2.getPosY(), 4, 9, WHITE);
-    if(arduboy.everyXFrames()) { 
-      daball.updatePos(stage.getGameState());
-    }
+    daball.updatePos(stage.getGameState());
+    
+  
+    
     stage.updateState();
 
     detectCollision(daball.collider, player1.collider, player2.collider);
@@ -93,8 +117,16 @@ void loop()
   }
   else
   {
-    arduboy.setCursor(50, 32);
+        arduboy.clear();
+
+    arduboy.setCursor(30, 12 + stage.menuselection);
+    arduboy.print("->");
+    arduboy.setCursor(48, 12);
     arduboy.print("Paused");
+    arduboy.setCursor(45, 22);
+    arduboy.print("Unpause");
+    arduboy.setCursor(45, 32);
+    arduboy.print("Main Menu");
     arduboy.display();
   }
 }
@@ -102,23 +134,34 @@ void loop()
 void controls()
 {
 
-  if (arduboy.justPressed(DOWN_BUTTON) && stage.getGameState() == 0)
+  if (arduboy.justPressed(DOWN_BUTTON) && (stage.getGameState() == 0 | stage.getGameState() == 4))
   {
     sound.tones(menusfx);
-    if (stage.menuselection < 30)
+    
+    if (stage.menuselection < 30 && stage.getGameState() == 3)
       stage.menuselection += 10;
+    else if (stage.menuselection < 20 && stage.getGameState() == 4) {
+      stage.menuselection += 10;
+      }
   }
-  if (arduboy.justPressed(UP_BUTTON) && stage.getGameState() == 0)
+  if (arduboy.justPressed(UP_BUTTON) && (stage.getGameState() == 0 | stage.getGameState() == 4))
   {
     sound.tones(menusfx);
-    if (stage.menuselection > 10)
+    if (stage.menuselection > 10)  {
       stage.menuselection -= 10;
+    }
+      else if (stage.menuselection < 20 && stage.getGameState() == 4) {
+      stage.menuselection += 10;
+      }
   }
   if (arduboy.justPressed(A_BUTTON) && stage.getGameState() == 0)
   {
     switch (stage.menuselection)
     {
     case 10: //1player
+    stage.setGameState(3);
+      arduboy.initRandomSeed();
+      daball.direction = (Direction)random(4, 7);
       break;
     case 20: //2player
       stage.setGameState(1);
@@ -132,10 +175,15 @@ void controls()
       break;
     }
   }
-  if (arduboy.justPressed(LEFT_BUTTON) & stage.getGameState() == 1)
+  if (arduboy.justPressed(LEFT_BUTTON) & (stage.getGameState() == 1 | stage.getGameState() == 3 | stage.getGameState() == 4))
   {
+    
     if (paused == 0)
     {
+      priorstate = stage.getGameState();
+      Serial.println(priorstate);
+      stage.menuselection = 10;
+      stage.setGameState(4);
       paused = 1;
       sound.tones(pausesfx);
       delay(300);
@@ -143,6 +191,8 @@ void controls()
     }
     else
     {
+      Serial.println(priorstate);
+       stage.setGameState(priorstate);
       paused = 0;
     }
   }

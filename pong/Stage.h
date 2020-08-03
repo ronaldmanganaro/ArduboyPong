@@ -21,18 +21,20 @@ public:
   {
     switch (GameState)
     {
-    case 0:
+    case 0: //main menu
       displayStartMenu();
       if (initialpos != 2)
         initialpos -= 4;
       break;
-    case 1:
-
+    case 1: //
+    case 3:
       displayScore();
       break;
     case 2:
       displayOptions();
       break;
+     case 4: //paused
+     break;
     }
   }
 
