@@ -4,27 +4,12 @@
 #include "Player.h"
 #include "Ball.h"
 #include "Stage.h"
-// Color array index
-enum class Color {
-  RED,
-  GREEN,
-  BLUE,
-  COUNT
-};
 
-// Map LED color index to LED name
-const byte LEDpin[(byte)(Color::COUNT)] = {
-  RED_LED,
-  GREEN_LED,
-  BLUE_LED
-};
-byte analogSelected = (byte)(Color::RED);
-byte analogValue[3] = { 0, 0, 0};
 
 void detectCollision(Rect ball, Rect player1, Rect player2);
 uint8_t priorstate;
 uint8_t paused = 0;
-uint8_t paddlespeed = 2;
+uint8_t paddlespeed = 3;
 const uint8_t SCREENX = 128;
 const uint8_t SCREENY = 64;
 const uint8_t upperbound = 0;
@@ -81,11 +66,12 @@ void loop()
 
     arduboy.clear();
   if(stage.getGameState() == 3) {
-      
+      if(arduboy.everyXFrames(daball.cpulevel)){
       if(player2.getPosY() > daball.getPosY()) {
-          player2.y-=paddlespeed;
+          player2.y-=(paddlespeed*2);
         }  else 
-        player2.y+=paddlespeed;
+        player2.y+=(paddlespeed*2);
+      }
     }
     player1.updatePos();
     player2.updatePos();
@@ -111,14 +97,15 @@ void loop()
       arduboy.display();
       delay(5000);
       reset();
+      stage.setGameState(0);
+      stage.menuselection = 10;
     }
 
     arduboy.display();
   }
   else
   {
-        arduboy.clear();
-
+    arduboy.clear();
     arduboy.setCursor(30, 12 + stage.menuselection);
     arduboy.print("->");
     arduboy.setCursor(48, 12);
@@ -138,7 +125,7 @@ void controls()
   {
     sound.tones(menusfx);
     
-    if (stage.menuselection < 30 && stage.getGameState() == 3)
+    if (stage.menuselection < 30 && stage.getGameState() == 0)
       stage.menuselection += 10;
     else if (stage.menuselection < 20 && stage.getGameState() == 4) {
       stage.menuselection += 10;
@@ -147,12 +134,13 @@ void controls()
   if (arduboy.justPressed(UP_BUTTON) && (stage.getGameState() == 0 | stage.getGameState() == 4))
   {
     sound.tones(menusfx);
-    if (stage.menuselection > 10)  {
+    //&& stage.getGameState() == 0
+    if (stage.menuselection > 10 )  {
       stage.menuselection -= 10;
     }
-      else if (stage.menuselection < 20 && stage.getGameState() == 4) {
-      stage.menuselection += 10;
-      }
+      //else if (stage.menuselection < 20 && stage.getGameState() == 4) {
+      //stage.menuselection -= 10;
+      //}
   }
   if (arduboy.justPressed(A_BUTTON) && stage.getGameState() == 0)
   {
@@ -177,22 +165,23 @@ void controls()
   }
   if (arduboy.justPressed(LEFT_BUTTON) & (stage.getGameState() == 1 | stage.getGameState() == 3 | stage.getGameState() == 4))
   {
-    
+    // if not paused pause it
     if (paused == 0)
     {
-      priorstate = stage.getGameState();
-      Serial.println(priorstate);
-      stage.menuselection = 10;
-      stage.setGameState(4);
-      paused = 1;
       sound.tones(pausesfx);
       delay(300);
       sound.noTone();
+
+      // get the priorstate so can go back to it after unpausing
+      priorstate = stage.getGameState();
+      stage.menuselection = 10;
+      stage.setGameState(4);
+      paused = 1;
     }
+    // unpause
     else
     {
-      Serial.println(priorstate);
-       stage.setGameState(priorstate);
+      stage.setGameState(priorstate);
       paused = 0;
     }
   }
@@ -200,96 +189,145 @@ void controls()
   {
     reset();
   }
+  //Pressed A while in options menu
   if (arduboy.justPressed(A_BUTTON) && stage.getGameState() == 2)
   {
     sound.tones(selectsfx);
     switch (stage.menuselection)
     {
     case 10: //ballspeed
-        //daball.ballspeed = ;
       break;
-    case 20: //back
-      stage.setGameState(0);
-
-      break;
-      /*case 30: //options
-      Serial.println("display option menu");
+     case 20:
+     break; //cpulevel
+    case 30: //back
       stage.menuselection = 10;
-      stage.setGameState(2);
-      
-      break;*/
+      stage.setGameState(0);
     }
   }
+  // Pressed A int he pause menu
+  if (arduboy.justPressed(A_BUTTON) && stage.getGameState() == 4)
+  {
+    sound.tones(selectsfx);
+    switch (stage.menuselection)
+    {
+    case 10: //unpause
+      stage.setGameState(priorstate);
+      paused = 0;
+      break;
+    case 20: //main menu
+      paused = 0;
+      stage.setGameState(0);
+      stage.menuselection = 10;
+      reset();
+      break;
+    }
+  }
+  // Pressing down while in options menu
   if (arduboy.justPressed(DOWN_BUTTON) && stage.getGameState() == 2)
   {
     sound.tones(menusfx);
-    if (stage.menuselection < 20)
+    if (stage.menuselection < 30)
       stage.menuselection += 10;
   }
+  // Pressing up on the options menu
   if (arduboy.justPressed(UP_BUTTON) && stage.getGameState() == 2)
   {
     sound.tones(menusfx);
+    // menuselection controls what will be selected first option == 10 no wrap
     if (stage.menuselection > 10)
       stage.menuselection -= 10;
   }
+  // Pressing left on the options screen
   if (arduboy.justPressed(LEFT_BUTTON) && stage.getGameState() == 2)
   {
     sound.tones(menusfx);
-    if (daball.ballspeed > 2) {
-      daball.ballspeed -= 1;
-      paddlespeed -= 1;
+    switch (stage.menuselection)
+    {
+      // Lower ballspeed 2 being min
+      case 10: //ballspeed
+        if (daball.ballspeed > 2) {
+          daball.ballspeed -= 1;
+          paddlespeed -= 1;
+        }
+        break;
+      // Lower CPU level
+      case 20:
+        if(daball.cpulevel < 4)
+          daball.cpulevel+=1;
+        break;
+      // back
+      case 30:
+        stage.menuselection = 10;
+        stage.setGameState(0);
     }
   }
+  // Pressed right and in the options menu
   if (arduboy.justPressed(RIGHT_BUTTON) && stage.getGameState() == 2)
   {
     sound.tones(menusfx);
-    if(daball.ballspeed < 8) {
-      daball.ballspeed += 1;
-      paddlespeed += 1;
+    switch (stage.menuselection)
+    {
+      // Change Ballspeed max 5
+      case 10: //ballspeed
+      if(daball.ballspeed < 5) {
+        daball.ballspeed += 1;
+        paddlespeed += 1;
+      }
+      break;
+      // Chane CPU difficulty
+      case 20:
+      if(daball.cpulevel > 2)
+        daball.cpulevel-=1;
+      break;
+      // Go back
+      case 30:
+        stage.menuselection = 10;
+        stage.setGameState(0);
     }
+    
   }
-  if (arduboy.pressed(B_BUTTON))
+  // Pressed B while playing 2 player
+  if (arduboy.pressed(B_BUTTON) && stage.getGameState() == 1)
   {
     int tmp = player2.getPosY();
     tmp -= paddlespeed;
     player2.setPosY(tmp);
-    //
     if (Arduboy2Base::collide(topcollider, player2.collider) | player2.getPosY() < upperbound)
     {
       tmp += paddlespeed;
       player2.setPosY(tmp);
     }
   }
-  if (arduboy.pressed(A_BUTTON))
+  // Pressed A while playing 2 player 
+  if (arduboy.pressed(A_BUTTON) && stage.getGameState() == 1)
   {
     int tmp = player2.getPosY();
     tmp += paddlespeed;
     player2.setPosY(tmp);
-    // | player1.getPosY() > lowerbound
     if (Arduboy2Base::collide(btmcollider, player2.collider) | player2.getPosY() > lowerbound)
     {
       tmp -= paddlespeed;
       player2.setPosY(tmp);
     }
   }
+  // Move player 1 up
   if (arduboy.pressed(UP_BUTTON))
   {
     int tmp = player1.getPosY();
     tmp -= paddlespeed;
     player1.setPosY(tmp);
-    //
     if (Arduboy2Base::collide(topcollider, player1.collider) | player1.getPosY() < upperbound)
     {
       tmp += paddlespeed;
       player1.setPosY(tmp);
     }
   }
+  // Move player 1 down
   if (arduboy.pressed(DOWN_BUTTON))
   {
     int tmp = player1.getPosY();
     tmp += paddlespeed;
     player1.setPosY(tmp);
-    // | player1.getPosY() > lowerbound
     if (Arduboy2Base::collide(btmcollider, player1.collider) | player1.getPosY() > lowerbound)
     {
       tmp -= paddlespeed;
@@ -297,7 +335,7 @@ void controls()
     }
   }
 }
-
+// detect collisions between the ball, players, and the uppser / lower boundaries
 void detectCollision(Rect ball, Rect player1, Rect player2)
 {
 
@@ -318,7 +356,7 @@ void detectCollision(Rect ball, Rect player1, Rect player2)
     bounce(3);
   }
 }
-
+//bounces in different direction depending on who the ball hit
 void bounce(uint8_t who)
 {
   sound.tones(bouncesfx);
@@ -385,8 +423,6 @@ uint8_t updateScore()
   if (daball.x <= 0)
   {
     stage.scores[1] += 1;
-    //Serial.println("p2scored");
-    //Serial.println(daball.x);
     daball.resetPos();
     sound.tones(scoresfx);
   }

@@ -26,8 +26,8 @@ public:
       if (initialpos != 2)
         initialpos -= 4;
       break;
-    case 1: //
-    case 3:
+    case 1: //1player
+    case 3: //2player
       displayScore();
       break;
     case 2:
@@ -85,12 +85,28 @@ public:
   void displayOptions()
   {
 
-    arduboy.setCursor(20, initialpos + 2 + menuselection);
+    arduboy.setCursor(10, initialpos + 2 + menuselection);
     arduboy.print("->");
-    arduboy.setCursor(35, initialpos + 12);
+    arduboy.setCursor(25, initialpos + 12);
     arduboy.print("Ball/Pdle Spd:");
     arduboy.print(ball->ballspeed);
-    arduboy.setCursor(35, initialpos + 22);
+    arduboy.setCursor(25, initialpos + 22);
+    arduboy.print("CPU Level:");
+    switch(ball->cpulevel) {
+    case 2:
+        arduboy.print("Hard");
+
+    break;
+    case 3:
+        arduboy.print("Med");
+
+    break;
+    case 4:
+    arduboy.print("EZ");
+    break;
+    }
+    
+    arduboy.setCursor(25, initialpos + 32);
     arduboy.print("Back");
   }
   Arduboy2 arduboy;

@@ -56,18 +56,12 @@ public:
 
   void updatePos()
   {
-    
-    
     uint8_t curx = getPosX();
     uint8_t cury = getPosY();
 
     setPosColliderX(curx);
     setPosColliderY(cury);
-    //Sprites::drawOverwrite(curx,cury,player,0);
   }
-
-  void enableAI() {
-    }
 
   uint8_t getHeight() { return height; }
   uint8_t getWidth() { return width; }

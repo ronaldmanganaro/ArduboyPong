@@ -2,7 +2,12 @@
 #define BALL_H
 
 #include <Sprites.h>
-
+enum CpuLevel
+{
+  easy = 4,
+  medium = 3,
+  hard = 2
+};
 const unsigned char PROGMEM ballsprite[] = {
     // width, height,
     2, 2,
@@ -102,6 +107,11 @@ public:
     setPosY(cury);
     // redraw ball at new coordinates
     Sprites::drawOverwrite(curx, cury, ballsprite, 0);
+    Serial.print(curx);
+    Serial.print(",");
+    Serial.print(cury);
+     Serial.println();
+    
   }
   void resetPos()
   {
@@ -117,9 +127,10 @@ public:
 
   uint8_t ballspeed = 3;
   int x = 0;
-  uint8_t y = 8;
+  int y = 8;
   uint8_t width = 2;
   uint8_t height = 2;
+  uint8_t cpulevel = 4;
 };
 
 #endif
