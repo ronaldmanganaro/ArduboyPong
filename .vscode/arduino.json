@@ -1,6 +1,6 @@
 {
     "board": "arduino:avr:leonardo",
-    "sketch": "pong.ino",
+    "sketch": "pong\\pong.ino",
     "port": "/dev/ttyACM0",
     "programmer": "AVR ISP"
 }

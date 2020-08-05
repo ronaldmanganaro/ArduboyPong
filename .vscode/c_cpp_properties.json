@@ -10,7 +10,9 @@
                 "/opt/arduino-1.8.13/hardware/arduino/avr/**",
                 "/opt/arduino-1.8.13/hardware/tools/**",
                 "/opt/arduino-1.8.13/libraries/**",
-                "/home/ronaldmanganaro/Arduboy/ArduboyPong/**"
+                "/home/ronaldmanganaro/Arduboy/ArduboyPong/**",
+                "C:\\Users\\MrCool\\Documents\\Arduboy\\arduino-nightly\\hardware\\arduino\\avr\\**",
+                "C:\\Users\\MrCool\\Documents\\Arduboy\\arduino-nightly\\tools\\**"
             ],
             "defines": [],
             "compilerPath": "C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.26.28801/bin/Hostx64/x64/cl.exe",
@@ -18,15 +20,20 @@
             "cppStandard": "gnu++14",
             "intelliSenseMode": "msvc-x64",
             "forcedInclude": [
-                "/opt/arduino-1.8.13/hardware/arduino/avr/cores/arduino/Arduino.h"
+                "/opt/arduino-1.8.13/hardware/arduino/avr/cores/arduino/Arduino.h",
+                "C:\\Users\\MrCool\\Documents\\Arduboy\\arduino-nightly\\hardware\\arduino\\avr\\cores\\arduino\\Arduino.h"
             ]
         },
         {
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/Users/MrCool/Desktop/arduino-nightly/**",
-                "C:/Users/MrCool/Documents/Arduino/libraries/**"
+                "C:/Users/MrCool/Documents/Arduboy/arduino-nightly/**",
+                "C:/Users/MrCool/Documents/Arduino/**",
+                "C:/Users/MrCool/Documents/Arduino/libraries/ArduboyTones/src/",
+                "C:/Users/MrCool/Documents/Arduboy/arduino-nightly/hardware/tools/avr/avr/include/**",
+                "C:/Users/MrCool/Documents/Arduboy/arduino-nightly/hardware/tools/avr/avr/include/avr/**",
+                "C:/Users/MrCool/Documents/Arduboy/arduino-nightly/hardware/**"
             ],
             "defines": [
                 "_DEBUG",
